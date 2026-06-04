@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GymApp — Gestion Salle de Sport</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&display=swap");
+
+      /* ── Reset & Variables ─────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0b0f1a;
+        --bg2: #111827;
+        --surface: #1a2236;
+        --surface2: #1f2a40;
+        --border: #2a3a55;
+        --accent: #f97316;
+        --accent2: #fb923c;
+        --blue: #38bdf8;
+        --green: #4ade80;
+        --red: #f87171;
+        --yellow: #facc15;
+        --text: #e2e8f0;
+        --muted: #64748b;
+        --font-head: "Barlow Condensed", sans-serif;
+        --font-body: "Barlow", sans-serif;
+        --radius: 10px;
+        --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 14px;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ── Sidebar + Layout ──────────────────────────────────────────── */
+      .app-shell {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        grid-template-rows: 1fr;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* ── Sidebar ───────────────────────────────────────────────────── */
+      .sidebar {
+        background: var(--bg2);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .brand {
+        padding: 22px 20px 18px;
+        border-bottom: 1px solid var(--border);
+      }
+      .brand-name {
+        font-family: var(--font-head);
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .brand-name span {
+        color: var(--text);
+      }
+      .brand-sub {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+      }
+
+      .nav {
+        padding: 16px 12px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .nav-section-label {
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        padding: 8px 8px 4px;
+        margin-top: 8px;
+      }
+      .nav-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 12px;
+        border-radius: 8px;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font-family: var(--font-body);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+        width: 100%;
+        text-align: left;
+      }
+      .nav-btn:hover {
+        background: var(--surface);
+        color: var(--text);
+      }
+      .nav-btn.active {
+        background: rgba(249, 115, 22, 0.15);
+        color: var(--accent);
+      }
+      .nav-btn .nav-icon {
+        font-size: 16px;
+        width: 20px;
+        text-align: center;
+      }
+
+      .sidebar-footer {
+        padding: 14px 20px;
+        border-top: 1px solid var(--border);
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      /* ── Main content ──────────────────────────────────────────────── */
+      .main {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      /* ── Top bar ───────────────────────────────────────────────────── */
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 28px;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg2);
+        flex-shrink: 0;
+      }
+      .page-title {
+        font-family: var(--font-head);
+        font-size: 22px;
+        font-weight: 700;
+        flex: 1;
+      }
+
+      .search-box {
+        position: relative;
+      }
+      .search-box input {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 13px;
+        padding: 7px 12px 7px 32px;
+        border-radius: 8px;
+        width: 220px;
+        outline: none;
+        transition: border 0.15s;
+      }
+      .search-box input:focus {
+        border-color: var(--accent);
+      }
+      .search-box::before {
+        content: "🔍";
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 12px;
+      }
+
+      .btn {
+        padding: 8px 18px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        font-family: var(--font-body);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      .btn-primary:hover {
+        background: var(--accent2);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--muted);
+        border-color: var(--border);
+      }
+      .btn-ghost:hover {
+        color: var(--text);
+        border-color: #3a4a65;
+      }
+      .btn-danger {
+        background: transparent;
+        color: var(--red);
+        border-color: rgba(248, 113, 113, 0.3);
+      }
+      .btn-danger:hover {
+        background: rgba(248, 113, 113, 0.1);
+      }
+      .btn-edit {
+        background: transparent;
+        color: var(--blue);
+        border-color: rgba(56, 189, 248, 0.3);
+      }
+      .btn-edit:hover {
+        background: rgba(56, 189, 248, 0.1);
+      }
+      .btn-sm {
+        padding: 5px 12px;
+        font-size: 12px;
+        border-radius: 6px;
+      }
+
+      /* ── Scroll container ──────────────────────────────────────────── */
+      .content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px 28px;
+      }
+      .content::-webkit-scrollbar {
+        width: 5px;
+      }
+      .content::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+
+      /* ── Dashboard cards ───────────────────────────────────────────── */
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px 22px;
+        position: relative;
+        overflow: hidden;
+        animation: fadeIn 0.4s ease both;
+      }
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        border-radius: 3px 0 0 3px;
+      }
+      .stat-card.total::before {
+        background: var(--accent);
+      }
+      .stat-card.actifs::before {
+        background: var(--green);
+      }
+      .stat-card.expires::before {
+        background: var(--red);
+      }
+
+      .stat-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--muted);
+        margin-bottom: 10px;
+      }
+      .stat-value {
+        font-family: var(--font-head);
+        font-size: 40px;
+        font-weight: 800;
+        line-height: 1;
+      }
+      .stat-card.total .stat-value {
+        color: var(--accent);
+      }
+      .stat-card.actifs .stat-value {
+        color: var(--green);
+      }
+      .stat-card.expires .stat-value {
+        color: var(--red);
+      }
+      .stat-icon {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 36px;
+        opacity: 0.12;
+      }
+      .stat-sub {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      /* ── Section title ─────────────────────────────────────────────── */
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+      .section-title {
+        font-family: var(--font-head);
+        font-size: 18px;
+        font-weight: 700;
+      }
+      .count-badge {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 2px 10px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      /* ── Table ─────────────────────────────────────────────────────── */
+      .table-wrapper {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      thead tr {
+        background: var(--surface2);
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        padding: 11px 14px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+      }
+      tbody tr {
+        border-bottom: 1px solid rgba(42, 58, 85, 0.5);
+        transition: background 0.1s;
+        animation: fadeIn 0.3s ease both;
+      }
+      tbody tr:last-child {
+        border-bottom: none;
+      }
+      tbody tr:hover {
+        background: var(--surface2);
+      }
+
+      td {
+        padding: 11px 14px;
+        font-size: 13px;
+        vertical-align: middle;
+      }
+      td.id-col {
+        font-family: monospace;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      td.name-col {
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      /* ── Badge statut ──────────────────────────────────────────────── */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 9px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+      .badge-actif {
+        background: rgba(74, 222, 128, 0.12);
+        color: var(--green);
+        border: 1px solid rgba(74, 222, 128, 0.25);
+      }
+      .badge-actif::before {
+        background: var(--green);
+      }
+      .badge-expire {
+        background: rgba(248, 113, 113, 0.12);
+        color: var(--red);
+        border: 1px solid rgba(248, 113, 113, 0.25);
+      }
+      .badge-expire::before {
+        background: var(--red);
+      }
+      .badge-mensuel {
+        background: rgba(56, 189, 248, 0.12);
+        color: var(--blue);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        font-size: 10px;
+      }
+      .badge-annuel {
+        background: rgba(250, 204, 21, 0.12);
+        color: var(--yellow);
+        border: 1px solid rgba(250, 204, 21, 0.2);
+        font-size: 10px;
+      }
+
+      .actions-col {
+        display: flex;
+        gap: 6px;
+      }
+
+      /* ── Empty state ───────────────────────────────────────────────── */
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--muted);
+      }
+      .empty-state .big {
+        font-size: 48px;
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      /* ── Modal overlay ─────────────────────────────────────────────── */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(3px);
+      }
+      .modal-overlay.open {
+        display: flex;
+      }
+
+      .modal {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 28px 32px;
+        width: 520px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow);
+        animation: slideUp 0.2s ease;
+      }
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .modal-title {
+        font-family: var(--font-head);
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* ── Formulaire ────────────────────────────────────────────────── */
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .form-group.full {
+        grid-column: 1 / -1;
+      }
+      label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+      }
+
+      input,
+      select {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 14px;
+        padding: 9px 12px;
+        border-radius: 8px;
+        outline: none;
+        transition: border 0.15s;
+        width: 100%;
+      }
+      input:focus,
+      select:focus {
+        border-color: var(--accent);
+      }
+      select option {
+        background: var(--surface2);
+      }
+      .field-hint {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .form-section {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+      }
+      .form-section-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 22px;
+      }
+
+      /* ── Toast notification ────────────────────────────────────────── */
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 2000;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--green);
+        border-radius: 10px;
+        padding: 12px 18px;
+        min-width: 260px;
+        font-size: 13px;
+        font-weight: 500;
+        box-shadow: var(--shadow);
+        transform: translateY(80px);
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      .toast.error {
+        border-left-color: var(--red);
+      }
+
+      /* ── Confirm dialog ────────────────────────────────────────────── */
+      .confirm-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(3px);
+      }
+      .confirm-overlay.open {
+        display: flex;
+      }
+      .confirm-box {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 28px 32px;
+        width: 380px;
+        box-shadow: var(--shadow);
+        animation: slideUp 0.2s ease;
+        text-align: center;
+      }
+      .confirm-icon {
+        font-size: 42px;
+        margin-bottom: 12px;
+      }
+      .confirm-title {
+        font-family: var(--font-head);
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .confirm-msg {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 24px;
+        line-height: 1.6;
+      }
+      .confirm-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      /* ── Animations ────────────────────────────────────────────────── */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .badge-coach {
+        background: rgba(168, 85, 247, 0.12);
+        color: #a855f7;
+        border: 1px solid rgba(168, 85, 247, 0.25);
+      }
+      .badge-coach::before { background: #a855f7; }
+      .badge-receptionniste {
+        background: rgba(56, 189, 248, 0.12);
+        color: var(--blue);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+      }
+      .badge-receptionniste::before { background: var(--blue); }
+      .badge-manager {
+        background: rgba(250, 204, 21, 0.12);
+        color: var(--yellow);
+        border: 1px solid rgba(250, 204, 21, 0.2);
+      }
+      .badge-manager::before { background: var(--yellow); }
+      .badge-autre {
+        background: rgba(100, 116, 139, 0.12);
+        color: var(--muted);
+        border: 1px solid rgba(100, 116, 139, 0.2);
+      }
+      .badge-autre::before { background: var(--muted); }
+
+      /* horaires grid */
+      .horaires-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 8px;
+      }
+      .horaire-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr auto;
+        gap: 8px;
+        align-items: center;
+      }
+      .btn-remove-horaire {
+        background: transparent;
+        border: 1px solid rgba(248,113,113,0.3);
+        color: var(--red);
+        border-radius: 6px;
+        padding: 4px 8px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .btn-remove-horaire:hover { background: rgba(248,113,113,0.1); }
+      .btn-add-horaire {
+        background: transparent;
+        border: 1px dashed var(--border);
+        color: var(--muted);
+        border-radius: 6px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 12px;
+        margin-top: 6px;
+        width: 100%;
+        transition: all 0.15s;
+      }
+      .btn-add-horaire:hover { border-color: var(--accent); color: var(--accent); }
+
+      .horaire-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 2px 7px;
+        font-size: 11px;
+        color: var(--muted);
+        margin: 2px;
+      }
+      .staff-stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; position: relative; overflow: hidden; animation: fadeIn 0.4s ease both; }
+      .staff-stat-card::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; border-radius: 3px 0 0 3px; }
+      .staff-stat-card.coaches::before { background: #a855f7; }
+      .staff-stat-card.employes-card::before { background: var(--blue); }
+      .staff-stat-card.total-staff::before { background: var(--accent); }
+
+      .about-section {
+        max-width: 520px;
+        margin: 40px auto;
+        text-align: center;
+      }
+      .about-logo {
+        font-family: var(--font-head);
+        font-size: 60px;
+        font-weight: 800;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .about-logo span {
+        color: var(--text);
+      }
+
+      /* ── Planning / Calendrier ──────────────────────────────────────────── */
+      .planning-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-shrink: 0;
+      }
+      .planning-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+        flex-shrink: 0;
+      }
+      .planning-stat {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px 16px;
+        text-align: center;
+      }
+      .planning-stat .ps-val {
+        font-family: var(--font-head);
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .planning-stat .ps-lbl {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 2px;
+      }
+
+      /* Calendrier semaine */
+      .calendar-week {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 10px;
+        min-height: 0;
+        flex: 1;
+      }
+      .calendar-day-col {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .calendar-day-header {
+        background: var(--surface2);
+        padding: 8px 10px;
+        font-family: var(--font-head);
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text);
+        border-bottom: 1px solid var(--border);
+        text-align: center;
+      }
+      .calendar-day-header .day-count {
+        display: inline-block;
+        background: var(--accent);
+        color: white;
+        border-radius: 50px;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 1px 7px;
+        margin-left: 6px;
+        font-family: var(--font-body);
+      }
+      .calendar-day-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-height: 220px;
+      }
+      .calendar-day-body::-webkit-scrollbar { width: 4px; }
+      .calendar-day-body::-webkit-scrollbar-track { background: transparent; }
+      .calendar-day-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+      .course-card {
+        border-radius: 8px;
+        padding: 8px 10px;
+        cursor: pointer;
+        transition: transform 0.12s, box-shadow 0.12s;
+        border-left: 3px solid transparent;
+        position: relative;
+      }
+      .course-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      }
+      .course-card .cc-name {
+        font-weight: 600;
+        font-size: 12px;
+        color: white;
+        margin-bottom: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .course-card .cc-time {
+        font-size: 10px;
+        color: rgba(255,255,255,0.8);
+        display: flex;
+        align-items: center;
+        gap: 3px;
+      }
+      .course-card .cc-coach {
+        font-size: 10px;
+        color: rgba(255,255,255,0.7);
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .course-card .cc-fill {
+        font-size: 9px;
+        color: rgba(255,255,255,0.7);
+        margin-top: 3px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .fill-bar {
+        flex: 1;
+        height: 3px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .fill-bar-inner {
+        height: 100%;
+        background: rgba(255,255,255,0.7);
+        border-radius: 2px;
+      }
+      .course-card .cc-actions {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        display: none;
+        gap: 3px;
+      }
+      .course-card:hover .cc-actions {
+        display: flex;
+      }
+      .cc-btn {
+        background: rgba(0,0,0,0.35);
+        border: none;
+        color: white;
+        border-radius: 4px;
+        padding: 2px 5px;
+        font-size: 10px;
+        cursor: pointer;
+        line-height: 1.4;
+      }
+      .cc-btn:hover { background: rgba(0,0,0,0.6); }
+
+      .day-empty {
+        font-size: 11px;
+        color: var(--muted);
+        text-align: center;
+        padding: 16px 0;
+        font-style: italic;
+      }
+
+      /* Vue liste cours */
+      .view-toggle {
+        display: flex;
+        gap: 6px;
+      }
+      .view-btn {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        border-radius: 7px;
+        padding: 6px 12px;
+        font-size: 12px;
+        cursor: pointer;
+        font-family: var(--font-body);
+        transition: all 0.15s;
+      }
+      .view-btn.active {
+        background: rgba(249,115,22,0.15);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* Modal cours */
+      .color-picker-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+      }
+      .color-swatch {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: transform 0.1s;
+      }
+      .color-swatch:hover { transform: scale(1.2); }
+      .color-swatch.selected { border-color: white; transform: scale(1.15); }
+    </style>
+  </head>
+  <body>
+    <!-- ═══════════════════════ APP SHELL ═══════════════════════════════════════ -->
+    <div class="app-shell">
+      <!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-name">GYM<span>App</span></div>
+          <div class="brand-sub">Gestion Salle de Sport</div>
+        </div>
+
+        <nav class="nav">
+          <span class="nav-section-label">Principal</span>
+          <button class="nav-btn active" onclick="showPage('dashboard', this)">
+            <span class="nav-icon">📊</span> Dashboard
+          </button>
+          <button class="nav-btn" onclick="showPage('members', this)">
+            <span class="nav-icon">👥</span> Membres
+          </button>
+
+          <span class="nav-section-label" style="margin-top: 8px">Gestion</span>
+          <button class="nav-btn" onclick="openAddModal()">
+            <span class="nav-icon">➕</span> Ajouter Membre
+          </button>
+
+          <span class="nav-section-label" style="margin-top: 8px">Équipe</span>
+          <button class="nav-btn" onclick="showPage('staff', this)">
+            <span class="nav-icon">🏋️</span> Coachs & Employés
+          </button>
+          <button class="nav-btn" onclick="openAddStaffModal()">
+            <span class="nav-icon">➕</span> Ajouter Employé
+          </button>
+
+          <span class="nav-section-label" style="margin-top: 8px">Planning</span>
+          <button class="nav-btn" onclick="showPage('planning', this)">
+            <span class="nav-icon">📅</span> Planification Cours
+          </button>
+          <button class="nav-btn" onclick="openAddCourseModal()">
+            <span class="nav-icon">➕</span> Ajouter un Cours
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div style="font-weight: 600; color: var(--text); margin-bottom: 2px">
+            — LSIM2
+          </div>
+          <div>Développement Cross-Plateforme</div>
+          <div>Année 2024-2025</div>
+        </div>
+      </aside>
+
+      <!-- ── Main ────────────────────────────────────────────────────────────── -->
+      <div class="main">
+        <!-- Topbar -->
+        <div class="topbar">
+          <div class="page-title" id="pageTitle">📊 Dashboard</div>
+          <div class="search-box">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Rechercher un membre..."
+              oninput="filterMembers()"
+            />
+          </div>
+          <button class="btn btn-primary" onclick="openAddModal()">
+            + Ajouter Membre
+          </button>
+        </div>
+
+        <!-- Contenu principal -->
+        <div class="content">
+          <!-- ══ PAGE : Dashboard ══════════════════════════════════════════════ -->
+          <div id="page-dashboard">
+            <div class="dashboard-grid">
+              <div class="stat-card total">
+                <div class="stat-label">Total Membres</div>
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-sub">Membres inscrits</div>
+                <div class="stat-icon">👥</div>
+              </div>
+              <div class="stat-card actifs">
+                <div class="stat-label">Abonnements Actifs</div>
+                <div class="stat-value" id="statActifs">0</div>
+                <div class="stat-sub">En cours de validité</div>
+                <div class="stat-icon">✅</div>
+              </div>
+              <div class="stat-card expires">
+                <div class="stat-label">Abonnements Expirés</div>
+                <div class="stat-value" id="statExpires">0</div>
+                <div class="stat-sub">À renouveler</div>
+                <div class="stat-icon">⚠️</div>
+              </div>
+            </div>
+
+            <!-- Derniers membres inscrits -->
+            <div class="section-header">
+              <div class="section-title">Derniers membres inscrits</div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nom & Prénom</th>
+                    <th>Âge</th>
+                    <th>Abonnement</th>
+                    <th>Date Fin</th>
+                    <th>Statut</th>
+                  </tr>
+                </thead>
+                <tbody id="dashRecentBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ══ PAGE : Membres ════════════════════════════════════════════════ -->
+          <div id="page-members" style="display: none">
+            <div class="section-header">
+              <div class="section-title">
+                Liste des Membres
+                <span class="count-badge" id="memberCount">0</span>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nom & Prénom</th>
+                    <th>Âge</th>
+                    <th>Téléphone</th>
+                    <th>Abonnement</th>
+                    <th>Date Début</th>
+                    <th>Date Fin</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="membersTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <!-- ══ PAGE : Staff ══════════════════════════════════════════════ -->
+          <div id="page-staff" style="display: none">
+            <div class="dashboard-grid" style="margin-bottom:24px">
+              <div class="stat-card total-staff staff-stat-card">
+                <div class="stat-label">Total Équipe</div>
+                <div class="stat-value" id="statStaffTotal" style="color:var(--accent)">0</div>
+                <div class="stat-sub">Membres du personnel</div>
+                <div class="stat-icon">👥</div>
+              </div>
+              <div class="stat-card coaches staff-stat-card">
+                <div class="stat-label">Coachs</div>
+                <div class="stat-value" id="statStaffCoachs" style="color:#a855f7">0</div>
+                <div class="stat-sub">Entraîneurs actifs</div>
+                <div class="stat-icon">🏋️</div>
+              </div>
+              <div class="stat-card employes-card staff-stat-card">
+                <div class="stat-label">Autres Employés</div>
+                <div class="stat-value" id="statStaffEmployes" style="color:var(--blue)">0</div>
+                <div class="stat-sub">Réception, gestion…</div>
+                <div class="stat-icon">🪪</div>
+              </div>
+            </div>
+
+            <div class="section-header">
+              <div class="section-title">
+                Personnel de la Salle
+                <span class="count-badge" id="staffCount">0</span>
+              </div>
+              <button class="btn btn-primary" onclick="openAddStaffModal()">+ Ajouter Employé</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nom & Prénom</th>
+                    <th>Rôle</th>
+                    <th>Spécialité</th>
+                    <th>Téléphone</th>
+                    <th>Salaire</th>
+                    <th>Horaires</th>
+                    <th>Date Embauche</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="staffTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <!-- ══ PAGE : Planning Cours ══════════════════════════════════════ -->
+          <div id="page-planning" style="display: none">
+
+            <!-- Stats rapides -->
+            <div class="planning-stats" id="planningStats">
+              <div class="planning-stat">
+                <div class="ps-val" id="psTotalCours">0</div>
+                <div class="ps-lbl">Total Cours</div>
+              </div>
+              <div class="planning-stat">
+                <div class="ps-val" style="color:var(--blue)" id="psCoachs">0</div>
+                <div class="ps-lbl">Coachs actifs</div>
+              </div>
+              <div class="planning-stat">
+                <div class="ps-val" style="color:var(--green)" id="psInscrits">0</div>
+                <div class="ps-lbl">Inscrits total</div>
+              </div>
+              <div class="planning-stat">
+                <div class="ps-val" style="color:var(--yellow)" id="psCapacite">0</div>
+                <div class="ps-lbl">Places totales</div>
+              </div>
+            </div>
+
+            <!-- En-tête planning -->
+            <div class="planning-header">
+              <div class="section-title">Calendrier Hebdomadaire</div>
+              <div style="display:flex;gap:10px;align-items:center">
+                <div class="view-toggle">
+                  <button class="view-btn active" id="viewCalBtn" onclick="switchView('cal')">📅 Semaine</button>
+                  <button class="view-btn" id="viewListBtn" onclick="switchView('list')">📋 Liste</button>
+                </div>
+                <button class="btn btn-primary" onclick="openAddCourseModal()">+ Nouveau Cours</button>
+              </div>
+            </div>
+
+            <!-- Vue Calendrier -->
+            <div id="planningCalView" class="calendar-week"></div>
+
+            <!-- Vue Liste -->
+            <div id="planningListView" style="display:none">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Cours</th>
+                      <th>Coach</th>
+                      <th>Salle</th>
+                      <th>Jour</th>
+                      <th>Horaire</th>
+                      <th>Inscrits / Capacité</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="coursesTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- /content -->
+      </div>
+      <!-- /main -->
+    </div>
+    <!-- /app-shell -->
+
+    <!-- ═══════════════════════ MODAL AJOUTER / MODIFIER ════════════════════════ -->
+    <div class="modal-overlay" id="memberModal">
+      <div class="modal">
+        <div class="modal-title" id="modalTitle">➕ Ajouter un Membre</div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nom *</label>
+            <input type="text" id="fNom" placeholder="Ben Ali" />
+          </div>
+          <div class="form-group">
+            <label>Prénom *</label>
+            <input type="text" id="fPrenom" placeholder="Yassine" />
+          </div>
+          <div class="form-group">
+            <label>Âge *</label>
+            <input
+              type="number"
+              id="fAge"
+              min="10"
+              max="100"
+              placeholder="25"
+            />
+          </div>
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input type="text" id="fTel" placeholder="55123456" />
+          </div>
+          <div class="form-group full">
+            <label>Email</label>
+            <input type="email" id="fEmail" placeholder="exemple@email.com" />
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">🏷️ Abonnement</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Type *</label>
+              <select id="fType" onchange="autoDateFin()">
+                <option value="mensuel">Mensuel</option>
+                <option value="annuel">Annuel</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Date de début *</label>
+              <input type="date" id="fDateDebut" onchange="autoDateFin()" />
+            </div>
+            <div class="form-group">
+              <label>Date de fin *</label>
+              <input type="date" id="fDateFin" />
+              <span class="field-hint">Calculée automatiquement</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+          <button
+            class="btn btn-primary"
+            id="modalSubmitBtn"
+            onclick="submitForm()"
+          >
+            ✓ Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════ CONFIRM DELETE ══════════════════════════════════ -->
+    <div class="confirm-overlay" id="confirmOverlay">
+      <div class="confirm-box">
+        <div class="confirm-icon">🗑️</div>
+        <div class="confirm-title">Supprimer le membre ?</div>
+        <div class="confirm-msg" id="confirmMsg">
+          Cette action est irréversible.
+        </div>
+        <div class="confirm-actions">
+          <button class="btn btn-ghost" onclick="closeConfirm()">
+            Annuler
+          </button>
+          <button class="btn btn-danger" id="confirmOkBtn">Supprimer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════ TOAST ════════════════════════════════════════════ -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ═══════════════════════ MODAL STAFF ════════════════════════════════════ -->
+    <div class="modal-overlay" id="staffModal">
+      <div class="modal" style="width:580px">
+        <div class="modal-title" id="staffModalTitle">🏋️ Ajouter un Employé</div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nom *</label>
+            <input type="text" id="sfNom" placeholder="Ben Ali" />
+          </div>
+          <div class="form-group">
+            <label>Prénom *</label>
+            <input type="text" id="sfPrenom" placeholder="Yassine" />
+          </div>
+          <div class="form-group">
+            <label>Rôle *</label>
+            <select id="sfRole" onchange="toggleSpecialite()">
+              <option value="coach">Coach</option>
+              <option value="receptionniste">Réceptionniste</option>
+              <option value="manager">Manager</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+          <div class="form-group" id="sfSpecialiteGroup">
+            <label>Spécialité</label>
+            <input type="text" id="sfSpecialite" placeholder="Musculation, Yoga…" />
+          </div>
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input type="text" id="sfTel" placeholder="55123456" />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="sfEmail" placeholder="coach@gym.tn" />
+          </div>
+          <div class="form-group">
+            <label>Salaire (TND) *</label>
+            <input type="number" id="sfSalaire" min="0" step="50" placeholder="1200" />
+          </div>
+          <div class="form-group">
+            <label>Date d'embauche *</label>
+            <input type="date" id="sfDateEmbauche" />
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">🗓️ Planification des Horaires</div>
+          <div class="horaires-grid" id="horairesGrid"></div>
+          <button class="btn-add-horaire" onclick="addHoraireRow()">+ Ajouter un créneau</button>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeStaffModal()">Annuler</button>
+          <button class="btn btn-primary" id="staffSubmitBtn" onclick="submitStaffForm()">✓ Enregistrer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════ MODAL COURS ════════════════════════════════════ -->
+    <div class="modal-overlay" id="courseModal">
+      <div class="modal" style="width:600px">
+        <div class="modal-title" id="courseModalTitle">📅 Ajouter un Cours</div>
+
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Nom du cours *</label>
+            <input type="text" id="cfNom" placeholder="Ex: Musculation, Yoga, Zumba…" />
+          </div>
+          <div class="form-group">
+            <label>Coach / Animateur</label>
+            <input type="text" id="cfCoach" placeholder="Nom du coach" />
+          </div>
+          <div class="form-group">
+            <label>Salle</label>
+            <input type="text" id="cfSalle" placeholder="Ex: Salle A, Studio 2…" />
+          </div>
+          <div class="form-group">
+            <label>Jour *</label>
+            <select id="cfJour">
+              <option value="Lundi">Lundi</option>
+              <option value="Mardi">Mardi</option>
+              <option value="Mercredi">Mercredi</option>
+              <option value="Jeudi">Jeudi</option>
+              <option value="Vendredi">Vendredi</option>
+              <option value="Samedi">Samedi</option>
+              <option value="Dimanche">Dimanche</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Heure début *</label>
+            <input type="time" id="cfDebut" value="08:00" />
+          </div>
+          <div class="form-group">
+            <label>Heure fin *</label>
+            <input type="time" id="cfFin" value="09:00" />
+          </div>
+          <div class="form-group">
+            <label>Capacité max</label>
+            <input type="number" id="cfCapacite" min="1" max="200" placeholder="20" />
+          </div>
+          <div class="form-group">
+            <label>Inscrits actuels</label>
+            <input type="number" id="cfInscrits" min="0" placeholder="0" />
+          </div>
+          <div class="form-group full">
+            <label>Description</label>
+            <input type="text" id="cfDescription" placeholder="Description courte du cours…" />
+          </div>
+          <div class="form-group full">
+            <label>Couleur</label>
+            <div class="color-picker-row" id="cfColorPicker"></div>
+            <input type="hidden" id="cfCouleur" value="#f97316" />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeCourseModal()">Annuler</button>
+          <button class="btn btn-primary" id="courseSubmitBtn" onclick="submitCourseForm()">✓ Enregistrer</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
