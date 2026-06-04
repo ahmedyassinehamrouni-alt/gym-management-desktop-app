@@ -1,0 +1,36 @@
+[
+  {
+    "id": "s001",
+    "nom": "Trabelsi",
+    "prenom": "Karim",
+    "role": "coach",
+    "specialite": "Musculation & Cardio",
+    "telephone": "55001122",
+    "email": "karim.trabelsi@gym.tn",
+    "salaire": 1200,
+    "horaires": [
+      { "jour": "Lundi",    "debut": "08:00", "fin": "16:00" },
+      { "jour": "Mercredi", "debut": "08:00", "fin": "16:00" },
+      { "jour": "Vendredi", "debut": "08:00", "fin": "14:00" }
+    ],
+    "dateEmbauche": "2024-01-15",
+    "actif": true
+  },
+  {
+    "id": "s002",
+    "nom": "Ben Salah",
+    "prenom": "Nour",
+    "role": "receptionniste",
+    "specialite": "",
+    "telephone": "55334455",
+    "email": "nour.bensalah@gym.tn",
+    "salaire": 900,
+    "horaires": [
+      { "jour": "Lundi",    "debut": "09:00", "fin": "17:00" },
+      { "jour": "Mardi",    "debut": "09:00", "fin": "17:00" },
+      { "jour": "Jeudi",    "debut": "09:00", "fin": "17:00" }
+    ],
+    "dateEmbauche": "2024-03-01",
+    "actif": true
+  }
+]
